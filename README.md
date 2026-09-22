@@ -12,24 +12,50 @@ vegetation context, anomaly rankings, and available Sentinel-2 evidence in
 You need **Python 3.12** and a modern browser. Viewing the supplied results
 does **not** require `pip install`, Node.js, a database, API keys, or a GPU.
 
-### 1. Get the project
-
-Extract the supplied `heat-waves-source.zip`, or clone the deployable branch:
+Check your Python version first:
 
 ```console
-git clone --branch results/sih26162-pilot https://github.com/mynkz3/heat-waves.git
+python --version
+```
+
+It should report `Python 3.12.x`. If Windows cannot find `python`, try
+`py -3.12 --version` and use `py -3.12` instead of `python` below. On macOS/Linux,
+try `python3 --version` and use `python3` if it reports 3.12.x. Install Python
+3.12 first if none is available; reopen your terminal after installation.
+
+### 1. Get the project
+
+Choose **one** method. With Git installed:
+
+```console
+git clone --branch main https://github.com/mynkz3/heat-waves.git
 cd heat-waves
 ```
 
-If you used the ZIP, open a terminal in the extracted folder containing
-`app.py`. Run the remaining commands from that folder.
+Or, without Git, put the supplied `heat-waves-source.zip` in a new working
+folder, open a terminal there, and run:
+
+```console
+python -m zipfile -e heat-waves-source.zip heat-waves
+cd heat-waves
+```
+
+**Run every remaining command from this `heat-waves` folder**, where `app.py`
+lives. If you already have the project, skip cloning/extracting it again.
 
 ### 2. Add the data package
 
 Get **`heat-waves-data.zip` from the project maintainer**. It is supplied
 separately and is **not included in the Git repository**.
 
-Extract its contents into the project folder, alongside `app.py`:
+Place the data ZIP **one folder above** the project folder. From inside
+`heat-waves`, extract it with:
+
+```console
+python -m zipfile -e ../heat-waves-data.zip .
+```
+
+Alternatively, extract it manually alongside `app.py`. The result must be:
 
 ```text
 heat-waves/
@@ -57,7 +83,8 @@ The second command starts the server and opens your browser. If it does not
 open automatically, visit **http://127.0.0.1:8000/**.
 
 Keep the terminal running. Press **Ctrl+C** to stop.
-On macOS/Linux, use `python3` instead of `python` if needed.
+Next time, open a terminal in this folder and run only
+`python app.py serve --open`.
 
 **Do not double-click `index.html`.** Always use the localhost address.
 Starting the dashboard does not train models or download new datasets.
@@ -89,14 +116,183 @@ may be empty because this is a saved dataset, not a live feed.
 | Blank page or blocked OSM tiles | Use the localhost URL, reload, and check your internet/privacy settings. Cached roads still work offline. |
 | Need to verify downloaded files | Run `python app.py check --mode view --deep` to check supplied manifests and result consistency. |
 
-## Optional: rebuilding, Docker, and development
+## Everyday commands
 
-You do not need these to open the supplied dashboard.
+Choose the command for your task; **do not run every row in sequence**.
 
-- [Deployment and developer guide](docs/DEPLOYMENT.md): rebuild from local
-  datasets, Docker viewer, packaging, folder layout, and tests.
+| Task | Command |
+| --- | --- |
+| Start and open the browser | `python app.py serve --open` |
+| Start without opening a browser | `python app.py serve` |
+| Stop the server | Press `Ctrl+C` in its terminal |
+| Use another port | `python app.py serve --port 8080 --open` |
+| Check supplied files | `python app.py check --mode view` |
+| Verify supplied hashes and saved results | `python app.py check --mode view --deep` |
+| Regenerate the map from saved results | `python app.py prepare` |
+| Show all commands | `python app.py --help` |
+| Show options for one command | `python app.py serve --help` (also works for `prepare`, `check`, `rebuild`, `package`) |
+
+After `prepare`, start the server again or reload the open dashboard.
+It regenerates browser assets only; it does not run the models.
+
+Every command accepts a project-relative `--config` **after** the command:
+
+```console
+python app.py serve --config config.json --host 127.0.0.1 --port 8000 --open
+```
+
+Keep the host at `127.0.0.1` for local use. Changing it can expose the server
+to other computers.
+
+## Optional commands
+
+**Skip these if you only want to view the supplied dashboard.**
+
+<details>
+<summary>Rebuild the analysis from local datasets</summary>
+
+Requires the complete data package and scientific dependencies. Choose your
+operating system; virtual-environment activation is not needed.
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe app.py check --mode rebuild --deep
+.\.venv\Scripts\python.exe app.py rebuild
+```
+
+macOS/Linux:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python app.py check --mode rebuild --deep
+.venv/bin/python app.py rebuild
+```
+
+Dependency installation needs internet unless you have a local wheel cache.
+The rebuild itself uses local datasets, rejects new downloads, and writes
+to a new `runs/rebuild-.../` folder. **It does not replace the dashboard.**
+Review the printed comparison and run manifest there first.
+
+To run another rebuild and replace the dashboard only after validation,
+stop the running server, then explicitly choose the publish command:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\python.exe app.py rebuild --publish
+```
+
+```sh
+# macOS/Linux
+.venv/bin/python app.py rebuild --publish
+```
+
+The old outputs are retained under the new run's `previous_outputs/`.
+Allow disk space for both. Restart with `python app.py serve --open`.
+Rebuilding can take substantially longer than opening saved results.
+
+</details>
+
+<details>
+<summary>Run the prepared dashboard with Docker instead of Python</summary>
+
+Install Docker with Compose first. Extract the source and data packages;
+`outputs/site/index.html` must already exist. Stop any Python server using
+port 8000 before starting this alternative.
+
+```console
+docker compose up --build
+```
+
+Open **http://127.0.0.1:8000/**. Press `Ctrl+C` to stop, then remove the stopped
+container with:
+
+```console
+docker compose down
+```
+
+The first build needs internet for the Python image. Docker serves prepared
+results only; it does not train models or download datasets. Prepare/rebuild
+on the host if needed. Docker configuration has **not been runtime-tested**
+in the development environment.
+
+</details>
+
+<details>
+<summary>Create source and data ZIPs to share</summary>
+
+Run these only on a project that already contains the datasets and saved
+results. If browser assets are missing, run `python app.py prepare` first.
+
+```console
+python app.py package --kind all
+```
+
+This creates `dist/heat-waves-source.zip` and `dist/heat-waves-data.zip`, with
+file-hash manifests. Give both ZIPs to the recipient. It does not upload them.
+
+To regenerate just one package, choose one command:
+
+```console
+python app.py package --kind source
+python app.py package --kind data
+```
+
+Source-only packaging needs no datasets. After intentionally changing a
+delivered package, its old manifest may no longer match; create matching new
+packages instead of ignoring integrity errors.
+
+</details>
+
+<details>
+<summary>Developer tests and presentation figures</summary>
+
+Install the virtual environment and dependencies shown in the rebuild
+section first. Run Python tests:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\python.exe -m unittest discover
+```
+
+```sh
+# macOS/Linux
+.venv/bin/python -m unittest discover
+```
+
+With Node.js installed, run the JavaScript tests:
+
+```console
+node --test tests/javascript/test_viewer.js tests/javascript/test_web_viewer.js
+```
+
+Browser integration tests additionally need a supported Chrome/Chromium/Edge
+installation. To generate presentation figures from saved results:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\python.exe -m scripts.make_ppt_figures
+```
+
+```sh
+# macOS/Linux
+.venv/bin/python -m scripts.make_ppt_figures
+```
+
+The figure command prints its output location. There is no `npm install`
+or frontend build step. After editing `frontend/`, run `python app.py prepare`
+and reload the dashboard.
+
+</details>
+
+## More information
+
+- [Deployment and developer guide](docs/DEPLOYMENT.md): folder layout and
+  detailed operational notes.
 - [Data sources and limitations](docs/DATA_SOURCES.md): provenance, coverage,
   score interpretation, and attribution requirements.
 
-For command options, run `python app.py --help`.
 This server is intended for localhost use, not unprotected public hosting.
