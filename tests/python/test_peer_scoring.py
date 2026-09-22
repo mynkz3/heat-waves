@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-import pipeline
+from backend import pipeline
 
 
 def settings():

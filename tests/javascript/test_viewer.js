@@ -4,7 +4,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
-const script = path.join(__dirname, "web", "viewer.js");
+const script = path.join(__dirname, "..", "..", "frontend", "viewer.js");
 let ui;
 test("offline frontend exports date and evidence filters", () => {
   assert.ok(fs.existsSync(script), "Offline viewer implementation is missing");

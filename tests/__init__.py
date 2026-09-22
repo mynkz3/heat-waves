@@ -1,0 +1,1 @@
+"""Thermal Sentinel regression tests."""

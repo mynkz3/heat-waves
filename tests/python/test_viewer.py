@@ -9,7 +9,8 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
+JAVASCRIPT = ROOT / "tests" / "javascript"
 ATTACK = '<img src=x onerror="globalThis.__injected=true">Plant</script><script>globalThis.__injected=true</script>'
 
 def fixture(cache):
@@ -47,8 +48,8 @@ def fixture(cache):
 
 class OfflineViewerTests(unittest.TestCase):
     def renderer(self):
-        self.assertTrue((ROOT / "viewer.py").exists(), "The standalone offline viewer renderer is missing")
-        return importlib.import_module("viewer")
+        self.assertTrue((ROOT / "backend" / "viewer.py").exists(), "The standalone offline viewer renderer is missing")
+        return importlib.import_module("backend.viewer")
 
     def test_safe_self_contained_payload(self):
         renderer = self.renderer()
@@ -104,7 +105,7 @@ class OfflineViewerTests(unittest.TestCase):
         ) if path.exists()), None)
         if browser is None:
             self.skipTest("Chrome/Edge is unavailable")
-        harness = "<script>" + (ROOT / "test_viewer.browser.js").read_text(encoding="utf-8") + "</script>"
+        harness = "<script>" + (JAVASCRIPT / "test_viewer.browser.js").read_text(encoding="utf-8") + "</script>"
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
             renderer.write_offline_viewer(output, *fixture(output / "cache"))
@@ -131,13 +132,13 @@ class OfflineViewerTests(unittest.TestCase):
         ) if path.exists()), None)
         if node is None or browser is None:
             self.skipTest("Node with built-in WebSocket and Chrome/Edge are required")
-        harness = "<script>" + (ROOT / "test_viewer.browser.js").read_text(encoding="utf-8") + "</script>"
+        harness = "<script>" + (JAVASCRIPT / "test_viewer.browser.js").read_text(encoding="utf-8") + "</script>"
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
             renderer.write_offline_viewer(output, *fixture(output / "cache"))
             html_file = output / "index.html"
             html_file.write_text(html_file.read_text(encoding="utf-8").replace("</body>", harness + "</body>"), encoding="utf-8")
-            result = subprocess.run([node, str(ROOT / "test_viewer.cdp.js"), str(browser), str(html_file), str(output / "profile")], capture_output=True, text=True, timeout=45)
+            result = subprocess.run([node, str(JAVASCRIPT / "test_viewer.cdp.js"), str(browser), str(html_file), str(output / "profile")], capture_output=True, text=True, timeout=45)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("PASS: real-clock browser", result.stdout)
 

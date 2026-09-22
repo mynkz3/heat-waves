@@ -113,7 +113,7 @@ def no_network():
 
 def preflight(root, config):
     """Check required sources, exact AOI OSM cache and readable WorldCover tiles."""
-    import pipeline
+    from . import pipeline
     import rasterio
     root = Path(root)
     cache = local_path(root, config["paths"]["cache"])
@@ -227,7 +227,7 @@ def portable_previews(features, output):
 
 
 def prepare(root, config, output=None):
-    from viewer import write_web_viewer
+    from .viewer import write_web_viewer
     root = Path(root)
     output = Path(output) if output is not None else local_path(root, config["paths"]["output"])
     required = ("events.geojson", "facilities.geojson", "run_manifest.json")
@@ -279,7 +279,7 @@ def compare_results(before, after):
 
 
 def rebuild(root, config, should_publish=False):
-    import pipeline
+    from . import pipeline
     root = Path(root)
     preflight(root, config)
     output = local_path(root, config["paths"]["output"])
@@ -327,13 +327,17 @@ def write_package(root, files, destination, kind):
 def package_files(root, config, kind):
     root = Path(root)
     if kind == "source":
-        names = ("app.py", "release.py", "pipeline.py", "viewer.py", "data_sources.py",
-                 "peer_scoring.py", "sentinel_evidence.py", "make_ppt_figures.py", "config.json",
-                 "requirements.txt", "README.md", "DATA_SOURCES.md", "Dockerfile", "compose.yaml", ".dockerignore")
+        names = ("app.py", "config.json", "requirements.txt", "README.md",
+                 "Dockerfile", "compose.yaml", ".dockerignore", ".gitignore")
         files = [root / n for n in names]
-        files += list(root.glob("test_*.py")) + list(root.glob("test_*.js"))
-        files += [p for p in (root / "web").rglob("*") if p.is_file()]
-        files += [root / "docs" / name for name in ("DEPLOYMENT_PLAN.md", "VEGETATION_SCORING.md", "DEFERRED_RESEARCH.md")]
+        for directory, patterns in (
+            ("backend", ("*.py",)), ("scripts", ("*.py",)),
+            ("tests", ("*.py", "*.js")), ("docs", ("*.md",)),
+            ("frontend", ("*.html", "*.css", "*.js", "*.txt", "*.ttf")),
+        ):
+            for pattern in patterns:
+                files.extend(p for p in (root / directory).rglob(pattern)
+                             if p.is_file() and "__pycache__" not in p.parts)
         return files
     output = local_path(root, config["paths"]["output"])
     cache = local_path(root, config["paths"]["cache"])

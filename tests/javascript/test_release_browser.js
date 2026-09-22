@@ -1,5 +1,5 @@
 "use strict";
-// Full saved-dataset smoke: node test_release_browser.js <browser> <python> [screenshots] [project]
+// Full saved-dataset smoke: node tests/javascript/test_release_browser.js <browser> <python> [screenshots] [project]
 // Uses the shipped stdlib launcher and blocks every external browser request.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -9,8 +9,8 @@ const {spawn} = require("node:child_process");
 
 async function main() {
   const [browser, python, reportArg, projectArg] = process.argv.slice(2);
-  assert.ok(browser && python, "Usage: node test_release_browser.js <browser> <python> [screenshots] [project]");
-  const project = path.resolve(projectArg || __dirname);
+  assert.ok(browser && python, "Usage: node tests/javascript/test_release_browser.js <browser> <python> [screenshots] [project]");
+  const project = path.resolve(projectArg || path.join(__dirname, "..", ".."));
   const reports = path.resolve(reportArg || path.join(project, "reports/generated/deployment"));
   const config = JSON.parse(fs.readFileSync(path.join(project, "config.json"), "utf8"));
   const site = path.join(project, config.paths.output, "site");

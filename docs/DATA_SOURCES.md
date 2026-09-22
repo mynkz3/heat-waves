@@ -139,7 +139,7 @@ precision, recall, or number of actual accidents is certified by this release.
 - The data package deliberately omits unneeded catalog-download caches and
   scratch runs; the included files support the documented local rebuild and
   reuse of available evidence, not acquisition of new imagery.
-- Preserve third-party notices under `web/vendor/` for Leaflet and the Sora
+- Preserve third-party notices under `frontend/vendor/` for Leaflet and the Sora
   font. Dataset licenses are separate from application-code licensing.
 - Do not bundle copyrighted news text/images merely because an article was
   used as an audit lead. Link and cite the original source instead.

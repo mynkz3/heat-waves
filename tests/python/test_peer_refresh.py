@@ -7,13 +7,13 @@ from unittest.mock import patch
 
 import pandas as pd
 
-import pipeline
-from test_peer_scoring import episodes, settings
+from backend import pipeline
+from tests.python.test_peer_scoring import episodes, settings
 
 
 class PeerRefreshTests(unittest.TestCase):
     def fixture(self, root):
-        config = json.loads(Path("config.json").read_text(encoding="utf-8"))
+        config = json.loads((Path(__file__).resolve().parents[2] / "config.json").read_text(encoding="utf-8"))
         overrides = settings()
         config["models"].update(overrides.pop("models"))
         config.update(overrides)

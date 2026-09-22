@@ -12,8 +12,8 @@ from unittest.mock import patch
 
 class ReleaseTests(unittest.TestCase):
     def setUp(self):
-        self.assertIsNotNone(importlib.util.find_spec("release"), "release module is required")
-        import release
+        self.assertIsNotNone(importlib.util.find_spec("backend.release"), "release module is required")
+        from backend import release
         self.release = release
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -75,8 +75,10 @@ class ReleaseTests(unittest.TestCase):
             self.assertEqual(manifest["files"][0]["path"], "data/sample.csv")
 
     def test_source_selection_includes_browser_test_dependencies(self):
-        for name in ("test_web_viewer.py", "test_web_viewer.js"):
-            (self.root / name).write_text("")
+        for name in ("tests/python/test_web_viewer.py", "tests/javascript/test_web_viewer.js"):
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("")
         selected = {p.name for p in self.release.package_files(self.root, {}, "source")}
         self.assertIn("test_web_viewer.js", selected)
 
@@ -107,7 +109,7 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(outside[0]["properties"]["sentinel_preview"], "C:/old/sentinel/../secret.png")
 
     def test_missing_or_wrong_aoi_context_fails_preflight_without_download(self):
-        config = json.loads(Path(__file__).with_name("config.json").read_text())
+        config = json.loads((Path(__file__).resolve().parents[2] / "config.json").read_text())
         config["inputs"]["firms_globs"] = ["data/sample.csv"]
         source = self.root / "data/sample.csv"
         source.parent.mkdir()
@@ -119,7 +121,7 @@ class ReleaseTests(unittest.TestCase):
         import numpy as np
         import rasterio
         from rasterio.transform import from_origin
-        config = json.loads(Path(__file__).with_name("config.json").read_text())
+        config = json.loads((Path(__file__).resolve().parents[2] / "config.json").read_text())
         config["aoi"]["bbox"] = [81.5, 23.2, 82.0, 23.8]
         config["inputs"]["firms_globs"] = ["data/sample.csv"]
         source = self.root / "data/sample.csv"
@@ -128,7 +130,7 @@ class ReleaseTests(unittest.TestCase):
         # Use the real matching OSM cache, but a wrongly located, correctly named TIFF.
         cache = self.root / "data/cache"
         cache.mkdir()
-        import pipeline
+        from backend import pipeline
         class Response:
             def raise_for_status(self): pass
             def json(self):

@@ -3,8 +3,8 @@ import unittest
 
 import pandas as pd
 
-import pipeline
-from test_peer_scoring import episodes, settings
+from backend import pipeline
+from tests.python.test_peer_scoring import episodes, settings
 
 
 class PeerRescoringTests(unittest.TestCase):

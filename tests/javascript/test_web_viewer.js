@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const ui = require("./web/viewer.js");
+const ui = require("../../frontend/viewer.js");
 
 test("lazy event loading keeps original precision, caches a shard, and uses its index not its ID", async () => {
   assert.equal(typeof ui.createDetailLoader, "function");

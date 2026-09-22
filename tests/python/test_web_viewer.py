@@ -11,8 +11,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import viewer
-from test_viewer import ATTACK, fixture
+from backend import viewer
+from tests.python.test_viewer import ATTACK, fixture
 
 
 class WebViewerTests(unittest.TestCase):
@@ -160,7 +160,7 @@ class WebViewerTests(unittest.TestCase):
             site, _, _ = self.write(output, events)
             relocated = output / "relocated"
             shutil.copytree(site, relocated)
-            result = subprocess.run([node, str(viewer.ROOT / "test_web_viewer.js"), "--browser",
+            result = subprocess.run([node, str(viewer.ROOT / "tests/javascript/test_web_viewer.js"), "--browser",
                                      browser, str(relocated), str(output / "profile")],
                                     capture_output=True, text=True, timeout=45)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

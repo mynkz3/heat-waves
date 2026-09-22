@@ -8,10 +8,10 @@ from unittest.mock import patch
 
 import pandas as pd
 
-import pipeline
+from backend import pipeline
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 SETTINGS = {"models": {"anomaly_percentile": .95, "min_history_events": 6, "min_calibration_events": 32}}
 
 

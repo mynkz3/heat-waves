@@ -3,7 +3,7 @@ import unittest
 
 import pandas as pd
 
-import pipeline
+from backend import pipeline
 
 
 class SentinelReuseTests(unittest.TestCase):

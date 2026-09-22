@@ -9,10 +9,10 @@ from pathlib import Path
 import pandas as pd
 from PIL import Image
 
-import make_ppt_figures as figures
+from scripts import make_ppt_figures as figures
 
 
-SCRIPT = Path(__file__).with_name("make_ppt_figures.py")
+SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "make_ppt_figures.py"
 FIGURE_NAMES = [
     "01_pipeline_counts.png",
     "02_monthly_detections.png",

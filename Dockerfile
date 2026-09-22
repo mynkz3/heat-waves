@@ -4,7 +4,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
-COPY app.py release.py viewer.py config.json ./
+COPY app.py config.json ./
+COPY backend/ ./backend/
 RUN mkdir -p /app/outputs/site
 
 USER 65532:65532

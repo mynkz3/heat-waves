@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-import pipeline
+from backend import pipeline
 
 
 class StabilityTests(unittest.TestCase):
@@ -24,7 +24,7 @@ class StabilityTests(unittest.TestCase):
                         'confidence_score': .6, 'firms_type_reference': float('nan'),
                     })
         detections = pd.DataFrame(rows)
-        config = pipeline.load_config(Path(__file__).with_name('config.json'))
+        config = pipeline.load_config(Path(__file__).resolve().parents[2] / 'config.json')
         config['models']['tuning_repeats'] = 3
         config['paths']['output'] = 'out'
         with tempfile.TemporaryDirectory() as directory:

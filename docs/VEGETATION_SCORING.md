@@ -62,7 +62,9 @@ radiometry warnings remain; reused evidence does not alter the anomaly score.
 
 ## Verification
 
-Run `python -m unittest discover -q` and `node --test test_viewer.js`.
+Run `python -m unittest discover -q` and
+`node --test tests/javascript/test_viewer.js tests/javascript/test_web_viewer.js`
+from the project root.
 The production browser check additionally exercises actual peer cards,
 date/context filters, saved Sentinel previews, tooltip width, zoom/pan and
 mobile layouts.

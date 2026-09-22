@@ -8,20 +8,22 @@ offline roads and evidence, explicit local rebuild, no automatic data updates.
 - `app.py`: standard-library CLI: `serve`, `prepare`, `check`, `rebuild`, `package`.
   Default configuration is `config.json` beside the launcher, independent of cwd.
   `serve` hosts only `outputs/site`, binds to `127.0.0.1`, and never runs models.
-- `release.py`: validate portable data manifests, build source/data ZIP packages,
+- `backend/release.py`: validate portable data manifests, build source/data ZIP packages,
   check required local inputs, and stage/publish a local rebuild with rollback.
-- `viewer.write_web_viewer(output_dir, events_geojson, facilities_geojson, config)`:
+- `backend.viewer.write_web_viewer(output_dir, events_geojson, facilities_geojson, config)`:
   returns `output_dir/site`, containing the localhost site and its local assets.
   Existing single-file viewer export remains available.
 - `config.json`: default local-only analysis; explicit archive coverage retained.
-- `README.md`, `DATA_SOURCES.md`, `Dockerfile`, `compose.yaml`: installation,
+- `frontend/`: editable local HTML, CSS, JavaScript and licensed vendor assets.
+- `README.md`, `docs/DATA_SOURCES.md`, `Dockerfile`, `compose.yaml`: installation,
   source/data distribution, data provenance, and optional containerized serving.
 
 ## Work and verification
 
 1. Write behavioral tests for missing/corrupt datasets, wrong AOI cache,
    outside-root paths, server containment, saved-result startup, and publication
-   rollback. Run `python -m unittest test_release test_app` before implementation.
+   rollback. Run `python -m unittest tests.python.test_release tests.python.test_app`
+   before implementation.
 2. Implement local preflight and an explicit outbound-network guard for rebuild.
    Rebuild under `runs/`, retaining the previous results on any failure.
    Validate event IDs, score bounds, counts, required outputs and context errors

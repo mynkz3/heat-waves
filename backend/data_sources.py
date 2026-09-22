@@ -344,7 +344,7 @@ def main():
     parser.add_argument("--no-live", action="store_true")
     parser.add_argument("--roads", action="store_true")
     args = parser.parse_args()
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parents[1]
     config = json.loads((root / args.config).read_text(encoding="utf-8"))
     sync_firms(root, config, history=not args.live_only, live=not args.no_live)
     if args.roads:

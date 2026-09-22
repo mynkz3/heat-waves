@@ -87,7 +87,7 @@ The latest retained detection inside the pilot is **2026-09-07 20:27 UTC**.
 Recent-date filters can therefore correctly be empty. Use the all-time view
 or historical dates when demonstrating this snapshot.
 
-Read [DATA_SOURCES.md](DATA_SOURCES.md) for provenance, timestamps and caveats.
+Read [Data sources](docs/DATA_SOURCES.md) for provenance, timestamps and caveats.
 
 ## How to interpret the map
 
@@ -191,20 +191,43 @@ python app.py package --kind all
 | `package --kind all` | Create both ZIPs |
 
 ```text
-app.py, release.py           Local launcher, checks and packaging
-config.json                 Pilot, input paths and model parameters
-pipeline.py                 Analysis and export stages
-data_sources.py             FIRMS ingestion and source metadata
-peer_scoring.py              Vegetation-peer scoring
-sentinel_evidence.py         Sentinel-2 corroboration implementation
-viewer.py, web/              Viewer generation and local frontend assets
-data/raw/firms/              Original CSVs and available metadata sidecars
-data/cache/                 Required contextual data and saved evidence
-outputs/                    Saved analysis tables, GIS layers and metadata
-outputs/site/               Only directory exposed by the localhost server
-runs/                       Staged rebuilds and retained previous outputs
-dist/                       Shareable source and data archives
+heat-waves/
+├── app.py                  Local launcher; start here
+├── README.md               Setup and usage
+├── config.json             Pilot, input paths and model parameters
+├── requirements.txt        Dependencies for rebuilding, not viewing
+├── Dockerfile              Optional prepared-results viewer
+├── compose.yaml
+├── backend/                Python analysis, viewer generation and packaging
+├── frontend/               HTML, CSS, JavaScript and licensed vendor assets
+├── tests/
+│   ├── python/             Python regression and deployment tests
+│   └── javascript/         Viewer helpers and browser checks
+├── scripts/                Presentation-figure utility
+├── docs/                   Data provenance and technical notes
+├── data/                   Supplied datasets (not committed to Git)
+│   ├── raw/firms/          Original CSVs and metadata sidecars
+│   └── cache/              Contextual data and saved evidence
+├── outputs/                Saved analysis tables, GIS layers and metadata
+│   └── site/               Only directory exposed by the localhost server
+├── runs/                   Local staged rebuilds and previous outputs
+└── dist/                   Generated source and data archives
 ```
+
+Keep these folders together; do not move JavaScript files beside `app.py`.
+There is no frontend build step or npm install. `frontend/` holds the editable
+assets; `prepare` copies them into the served `outputs/site/`.
+
+For development, the analysis modules and figure utility also have entry
+points. Run these from the project root, using the analysis environment:
+
+```console
+python -m backend.pipeline --help
+python -m backend.data_sources --help
+python -m scripts.make_ppt_figures --help
+```
+
+Use `app.py rebuild` for the documented offline, staged analysis workflow.
 
 Packages are `dist/heat-waves-source.zip` and `dist/heat-waves-data.zip`.
 They include `MANIFEST-source.json` and `MANIFEST-data.json`, respectively,
@@ -256,10 +279,16 @@ authentication and operational controls.
 - **Missing local context during rebuild:** restore the matching dataset/cache
   package. The offline rebuild does not silently download replacements.
 
-For development, Python tests use `python -m unittest discover`; JavaScript
-helper tests use Node.js via `node --test test_viewer.js`. Browser integration
-checks additionally require an installed supported browser.
+For development, run tests from the project root:
+
+```console
+python -m unittest discover
+node --test tests/javascript/test_viewer.js tests/javascript/test_web_viewer.js
+```
+
+Python tests require the analysis dependencies. Browser integration checks
+additionally require an installed supported browser.
 
 Data and bundled third-party assets retain their own attribution/license
-requirements; see [DATA_SOURCES.md](DATA_SOURCES.md) and the license files in
-`web/vendor/`.
+requirements; see [Data sources](docs/DATA_SOURCES.md) and the license files in
+`frontend/vendor/`.

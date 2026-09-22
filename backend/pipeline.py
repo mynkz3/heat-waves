@@ -20,8 +20,8 @@ from sklearn.ensemble import IsolationForest
 from sklearn.metrics import adjusted_rand_score
 from sklearn.model_selection import ParameterGrid
 
-import data_sources
-from peer_scoring import score_vegetation_peers
+from . import data_sources
+from .peer_scoring import score_vegetation_peers
 
 
 EARTH_SEARCH = "https://earth-search.aws.element84.com/v1/search"
@@ -815,7 +815,7 @@ def score_anomalies(events: pd.DataFrame, config: dict[str, Any]) -> pd.DataFram
 
 
 def acquire_sentinel(events, config, cache_dir, output_dir, refresh):
-    from sentinel_evidence import acquire_sentinel as acquire
+    from .sentinel_evidence import acquire_sentinel as acquire
     return acquire(events, config, cache_dir, output_dir, refresh)
 
 
@@ -971,7 +971,7 @@ def frame_to_geojson(frame: pd.DataFrame, id_column: str) -> dict[str, Any]:
 
 
 def write_offline_viewer(output_dir, events_geojson, facilities_geojson, config):
-    from viewer import write_offline_viewer as render
+    from .viewer import write_offline_viewer as render
     render(output_dir, events_geojson, facilities_geojson, config)
 
 
@@ -1485,7 +1485,7 @@ def main() -> int:
     if args.command == "self-check":
         self_check()
         return 0
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parents[1]
     config_path = args.config if args.config.is_absolute() else root / args.config
     if args.command == "tune":
         report = tune_hyperparameters(root, config_path)

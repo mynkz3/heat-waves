@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote
 
-ROOT = Path(__file__).resolve().parent
-WEB = ROOT / "web"
+ROOT = Path(__file__).resolve().parents[1]
+WEB = ROOT / "frontend"
 SUMMARY_FIELDS = (
     "event_id", "event_uid", "site_id", "start_time", "end_time", "decision",
     "anomaly_score", "detection_count", "frp_peak_mw", "nearest_facility_name",

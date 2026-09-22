@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-import pipeline
+from backend import pipeline
 
 
 class PipelineScientificContractTests(unittest.TestCase):

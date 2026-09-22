@@ -6,7 +6,7 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-import data_sources
+from backend import data_sources
 
 
 class DownloadTests(unittest.TestCase):

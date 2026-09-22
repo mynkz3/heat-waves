@@ -16,7 +16,7 @@ class AppTests(unittest.TestCase):
 
     def test_help_runs_without_site_packages_from_other_directory(self):
         with tempfile.TemporaryDirectory() as temp:
-            result = subprocess.run([sys.executable, "-S", str(Path(__file__).with_name("app.py")), "--help"],
+            result = subprocess.run([sys.executable, "-S", str(Path(__file__).resolve().parents[2] / "app.py"), "--help"],
                                     cwd=temp, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("serve", result.stdout)

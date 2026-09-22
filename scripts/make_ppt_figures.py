@@ -535,7 +535,7 @@ def generate(root: Path) -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate SIH26162 PPT-ready result figures")
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parent)
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     args = parser.parse_args()
     summary = generate(args.root)
     print(f"Generated figures and summary: {summary}")

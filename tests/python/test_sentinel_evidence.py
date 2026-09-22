@@ -14,8 +14,8 @@ import pandas as pd
 import rasterio
 from rasterio.transform import from_origin
 
-if importlib.util.find_spec("sentinel_evidence"):
-    import sentinel_evidence as se
+if importlib.util.find_spec("backend.sentinel_evidence"):
+    from backend import sentinel_evidence as se
 else:
     se = None
 
