@@ -1,294 +1,102 @@
 # Thermal Sentinel — SIH 26162
 
-A localhost GIS for reviewing satellite thermal detections in the
-Singrauli–Sonebhadra pilot region. It separates mapped industrial, mining,
-vegetation and unresolved contexts, then ranks unusual observation episodes.
+A map dashboard for reviewing satellite heat detections, industrial and
+vegetation context, anomaly rankings, and available Sentinel-2 evidence in
+**Singrauli–Sonebhadra**.
 
-**This is a research screening tool, not a confirmed-fire feed or an emergency
-warning service. An anomaly score is not a fire probability.**
+> Research screening only. An anomaly score is not a fire probability or a
+> confirmed accident.
 
-## Quick start: open the supplied results
+## Run locally in 3 steps
 
-Requirements: **Python 3.12** and a modern desktop browser. No Python packages,
-database, Node.js, API key or GPU are required to view the packaged results.
+You need **Python 3.12** and a modern browser. Viewing the supplied results
+does **not** require `pip install`, Node.js, a database, API keys, or a GPU.
 
-1. Obtain both `heat-waves-source.zip` and `heat-waves-data.zip` from the project
-   distributor. Extract **both into the same folder**. `app.py`, `config.json`,
-   `data/` and `outputs/` must be siblings, not nested inside separate folders.
-   A source-only checkout does not contain the datasets.
-2. Open a terminal in that folder and run:
+### 1. Get the project
 
-   ```console
-   python app.py check --mode view --deep
-   python app.py serve
-   ```
-
-3. Open **http://127.0.0.1:8000/**. Keep the terminal open; press `Ctrl+C` to stop.
-
-On macOS/Linux, use `python3` if that is the name of your Python 3.12 executable.
-The deep check verifies the delivered package hashes and can take longer than
-an ordinary startup. Run `python app.py check --mode view` for a quicker check.
-
-The data package includes a prepared `outputs/site/`. If you have the result
-files but no prepared site, run:
+Extract the supplied `heat-waves-source.zip`, or clone the deployable branch:
 
 ```console
-python app.py prepare
-python app.py serve
+git clone --branch results/sih26162-pilot https://github.com/mynkz3/heat-waves.git
+cd heat-waves
 ```
 
-`prepare` converts existing results into browser assets. It does **not** fit
-models, download data or alter the saved event scores. Serving also never runs
-the analysis.
+If you used the ZIP, open a terminal in the extracted folder containing
+`app.py`. Run the remaining commands from that folder.
 
-## Online and offline operation
+### 2. Add the data package
 
-| Capability | Internet required? |
-| --- | --- |
-| View, filter and inspect packaged events, sites and evidence | No |
-| Show packaged road geometry | No |
-| Show detailed OpenStreetMap street-map tiles | Yes |
-| Rebuild from a complete supplied dataset/cache folder | No |
-| Obtain new satellite observations or updated facility context | Deferred; not automatic |
+Get **`heat-waves-data.zip` from the project maintainer**. It is supplied
+separately and is **not included in the Git repository**.
 
-Online mode requests street tiles directly from OpenStreetMap in the browser.
-If tiles fail or the browser is offline, local roads and result layers remain.
-The fallback is **not** a complete offline copy of the OSM tiled basemap.
-
-Use the localhost URL, not a double-clicked `index.html`. OSM requires a valid
-web referrer and visible attribution. This release does not bulk-download OSM
-tiles. Public tile servers are best-effort; larger public deployments need an
-appropriate tile provider. See the [OSM tile policy](https://operations.osmfoundation.org/policies/tiles/).
-
-There is no background synchronization, scheduler or automatic retraining.
-Connecting to the internet changes the basemap availability, **not the age of
-the thermal dataset**.
-
-## What the supplied snapshot contains
-
-These figures describe the saved `outputs/run_manifest.json`, generated on
-**2026-09-09**, not a live evaluation:
-
-| Item | Saved snapshot |
-| --- | ---: |
-| Retained thermal detections | 112,670 |
-| Observation episodes | 35,963 |
-| Persistent source sites | 4,985 |
-| Episodes with an anomaly score | 29,330 |
-| Episodes without a score | 6,633 |
-| OSM contextual features | 250 |
-| Episodes with analysed Sentinel-2 pairs | 103 |
-
-The pilot uses bounding box `[81.5, 23.2, 83.5, 25.2]` in
-`[west, south, east, north]` order, not exact district boundaries.
-Science-quality FIRMS records cover **2019–2024**. **2025 is missing**.
-2026 contains only a short September NRT snapshot; it is not a complete year.
-The latest retained detection inside the pilot is **2026-09-07 20:27 UTC**.
-Recent-date filters can therefore correctly be empty. Use the all-time view
-or historical dates when demonstrating this snapshot.
-
-Read [Data sources](docs/DATA_SOURCES.md) for provenance, timestamps and caveats.
-
-## How to interpret the map
-
-- A detection means FIRMS reported a thermal hotspot, not that a particular
-  industrial asset burned.
-- Context describes nearby mapped land cover/facilities. Mining and quarry
-  context is kept separate from other industrial context.
-- Scores rank unusual observations against eligible historical comparisons.
-  The configured `0.95` cutoff is a **review threshold**, not “95% chance of
-  fire.” Low scores do not establish safety.
-- A missing score means the model abstained: for example, insufficient site
-  history or too few comparable vegetation peers. The detected heat and its
-  known context remain visible.
-- Sentinel pre/post change is supporting evidence, with acquisition dates,
-  cloud limitations and radiometry warnings; it does not confirm the cause.
-
-The snapshot has 19 suspected non-mining industrial episodes and 166 suspected
-mining-associated episodes. These are **not counts of confirmed accidents**.
-The independent incident audit is incomplete; no validated precision, recall
-or accuracy is claimed.
-
-## Rebuild the analysis from local datasets
-
-Viewing is the default workflow. Rebuilding is an explicit, slower operation
-that requires the scientific dependencies and the full local data package.
-Install these in a virtual environment.
-
-Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe app.py check --mode rebuild --deep
-.\.venv\Scripts\python.exe app.py rebuild
-```
-
-macOS/Linux:
-
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python app.py check --mode rebuild --deep
-.venv/bin/python app.py rebuild
-```
-
-Installing packages initially requires internet unless you supply a compatible
-local wheel cache. The rebuild itself uses local inputs and rejects outbound
-acquisition. It requires matching OSM context and WorldCover caches. It reuses
-saved Sentinel evidence only when event identity, coordinates and observation
-dates match; it does not acquire new Sentinel scenes.
-
-By default, the rebuild writes to `runs/rebuild-.../outputs/` and reports a
-comparison with the existing results. **It does not replace the dashboard.**
-Review the comparison and run manifest first. To perform a rebuild and publish
-its validated outputs explicitly, use the virtual environment's Python:
-
-```console
-python app.py rebuild --publish
-```
-
-Publication preserves the previous output directory under the rebuild run.
-A failed rebuild must not replace the last successful results. Keep enough
-free disk space for the input package, staged outputs and previous results.
-Runtime depends on CPU, storage and input size; no fixed completion time is
-guaranteed.
-
-The core workflow is:
-
-```text
-local FIRMS → validation/deduplication → event/site discovery
-           → OSM + WorldCover context
-           → historical site or vegetation-peer anomaly scoring
-           → saved Sentinel evidence → GIS exports
-```
-
-Fitting uses no disaster/fire labels or hand-selected “normal” examples.
-Historical source-site discovery is retrospective, so this release is not a
-fully prospective validation of future-fire detection.
-
-## Commands and files
-
-Run `python app.py --help` or `python app.py <command> --help` for options.
-Options follow the command; for example:
-
-```console
-python app.py serve --port 8080
-python app.py check --mode rebuild --config config.json
-python app.py package --kind all
-```
-
-| Command | Purpose |
-| --- | --- |
-| `serve` | Host only the prepared site, default `127.0.0.1:8000` |
-| `prepare` | Prepare browser assets from saved result files |
-| `check --mode view` | Check the saved-result deployment |
-| `check --mode rebuild` | Check required local analysis inputs |
-| `rebuild` | Run local analysis into a new staging directory |
-| `rebuild --publish` | Rebuild and explicitly publish validated results |
-| `package --kind source` | Create the source-code ZIP |
-| `package --kind data` | Create the local dataset/result ZIP |
-| `package --kind all` | Create both ZIPs |
+Extract its contents into the project folder, alongside `app.py`:
 
 ```text
 heat-waves/
-├── app.py                  Local launcher; start here
-├── README.md               Setup and usage
-├── config.json             Pilot, input paths and model parameters
-├── requirements.txt        Dependencies for rebuilding, not viewing
-├── Dockerfile              Optional prepared-results viewer
-├── compose.yaml
-├── backend/                Python analysis, viewer generation and packaging
-├── frontend/               HTML, CSS, JavaScript and licensed vendor assets
-├── tests/
-│   ├── python/             Python regression and deployment tests
-│   └── javascript/         Viewer helpers and browser checks
-├── scripts/                Presentation-figure utility
-├── docs/                   Data provenance and technical notes
-├── data/                   Supplied datasets (not committed to Git)
-│   ├── raw/firms/          Original CSVs and metadata sidecars
-│   └── cache/              Contextual data and saved evidence
-├── outputs/                Saved analysis tables, GIS layers and metadata
-│   └── site/               Only directory exposed by the localhost server
-├── runs/                   Local staged rebuilds and previous outputs
-└── dist/                   Generated source and data archives
+├── app.py
+├── config.json
+├── backend/
+├── frontend/
+├── data/
+└── outputs/
+    └── site/
+        └── index.html
 ```
 
-Keep these folders together; do not move JavaScript files beside `app.py`.
-There is no frontend build step or npm install. `frontend/` holds the editable
-assets; `prepare` copies them into the served `outputs/site/`.
+Do not leave `data/` and `outputs/` nested inside a `heat-waves-data/` folder.
+Use the source and data packages distributed together.
 
-For development, the analysis modules and figure utility also have entry
-points. Run these from the project root, using the analysis environment:
+### 3. Start the dashboard
 
 ```console
-python -m backend.pipeline --help
-python -m backend.data_sources --help
-python -m scripts.make_ppt_figures --help
+python app.py check --mode view
+python app.py serve --open
 ```
 
-Use `app.py rebuild` for the documented offline, staged analysis workflow.
+The second command starts the server and opens your browser. If it does not
+open automatically, visit **http://127.0.0.1:8000/**.
 
-Packages are `dist/heat-waves-source.zip` and `dist/heat-waves-data.zip`.
-They include `MANIFEST-source.json` and `MANIFEST-data.json`, respectively,
-with file hashes. Distribute both archives together. The data archive excludes
-unneeded download-catalog caches and the old large single-file HTML export.
-Packaging does not upload or publish anything.
+Keep the terminal running. Press **Ctrl+C** to stop.
+On macOS/Linux, use `python3` instead of `python` if needed.
 
-Manifests describe the delivered snapshot. After intentionally modifying or
-rebuilding its files, old hashes may no longer match: review the changes and
-create a new package instead of treating an old manifest as a new certificate.
+**Do not double-click `index.html`.** Always use the localhost address.
+Starting the dashboard does not train models or download new datasets.
 
-## Optional Docker viewer
+## Do I need internet?
 
-Docker is optional and serves **already prepared results only**. It does not
-install the scientific stack or rebuild models. These container files were
-not runtime-tested in the development environment because Docker was absent.
+- **Online:** the map can display detailed OpenStreetMap street tiles.
+- **Offline:** supplied results, filters, cached roads, and saved evidence
+  remain available. Cached roads are not a complete offline street basemap.
+- **No automatic updates:** connecting to the internet does not refresh
+  thermal detections or retrain models.
 
-With Docker and Compose installed, extract the packages and ensure
-`outputs/site/index.html` exists, then run:
+## Which dates can I view?
 
-```console
-docker compose up --build
-```
+The supplied snapshot has **35,963 observation episodes**, not 35,963
+confirmed fires. It covers **2019–2024** and a short September 2026 snapshot.
+**2025 is missing**; the latest observation is **7 September 2026, 20:27 UTC**.
 
-Open http://127.0.0.1:8000/. Stop with `Ctrl+C`, then `docker compose down`.
-The first build needs internet for the Python image. The site is mounted
-read-only; the host port binds to localhost. Run preparation/rebuilding on the
-host before restarting the container to serve changed outputs.
+Use **All time** or historical dates for the demo. Latest/week/month filters
+may be empty because this is a saved dataset, not a live feed.
 
-This is a local demonstration server, not a hardened public hosting service.
-Do not expose it to untrusted networks without adding appropriate hosting,
-authentication and operational controls.
+## Quick fixes
 
-## Troubleshooting
+| Problem | What to do |
+| --- | --- |
+| Missing datasets or results | Extract the matching data ZIP beside `app.py`. A source-only clone is not enough. |
+| “Prepared site missing” | If saved results are present, run `python app.py prepare`, then start the server again. This does not retrain models. |
+| Port 8000 is busy | Run `python app.py serve --port 8080 --open`. |
+| Blank page or blocked OSM tiles | Use the localhost URL, reload, and check your internet/privacy settings. Cached roads still work offline. |
+| Need to verify downloaded files | Run `python app.py check --mode view --deep` to check supplied manifests and result consistency. |
 
-- **Missing files:** extract the data ZIP beside `app.py`, not into an extra
-  nested directory. Run `check` again; do not run a rebuild merely to view.
-- **Hash mismatch:** re-extract the matching release into a fresh folder.
-  Do not mix datasets and source archives from unrelated releases.
-- **Blank or stale map:** use the localhost URL, confirm the server is running,
-  and reload the page. Run `prepare` if site assets are absent or intentionally
-  stale after changing saved results.
-- **OSM “referer required” or blocked tiles:** use localhost rather than
-  `file://`; check browser extensions/privacy rules. Keep the local-road
-  fallback available rather than bypassing the provider's policy.
-- **Empty latest/last-year view:** inspect dataset dates and coverage gaps.
-  An empty view does not establish that no fire occurred.
-- **Port already used:** `python app.py serve --port 8080`.
-- **Missing local context during rebuild:** restore the matching dataset/cache
-  package. The offline rebuild does not silently download replacements.
+## Optional: rebuilding, Docker, and development
 
-For development, run tests from the project root:
+You do not need these to open the supplied dashboard.
 
-```console
-python -m unittest discover
-node --test tests/javascript/test_viewer.js tests/javascript/test_web_viewer.js
-```
+- [Deployment and developer guide](docs/DEPLOYMENT.md): rebuild from local
+  datasets, Docker viewer, packaging, folder layout, and tests.
+- [Data sources and limitations](docs/DATA_SOURCES.md): provenance, coverage,
+  score interpretation, and attribution requirements.
 
-Python tests require the analysis dependencies. Browser integration checks
-additionally require an installed supported browser.
-
-Data and bundled third-party assets retain their own attribution/license
-requirements; see [Data sources](docs/DATA_SOURCES.md) and the license files in
-`frontend/vendor/`.
+For command options, run `python app.py --help`.
+This server is intended for localhost use, not unprotected public hosting.
