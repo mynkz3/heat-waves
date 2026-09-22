@@ -1,2 +1,27 @@
 .worktrees/
+__pycache__/
+*.pyc
+data/raw/
+data/cache/
+outputs/
+reports/
 .superpowers/
+.venv/
+dist/
+MANIFEST-*.json
+
+# Local runs, logs and generated code maps
+/runs/
+/logs/
+/graphify-out/
+/.local-archive/
+
+# Personal research material and original UI mockup (keep locally)
+/SIH26162_CONVERSATION.md
+/SIH2026-IDEA-Presentation-Format.pptx.pdf
+/stitch_thermal_sentinel_gis_platform.zip
+
+# Local credentials must never be committed
+.env
+.env.*
+!.env.example

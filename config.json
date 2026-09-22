@@ -1,0 +1,74 @@
+{
+  "project": "SIH26162 Thermal Sentinel",
+  "aoi": {
+    "name": "Singrauli-Sonebhadra pilot",
+    "bbox": [81.5, 23.2, 83.5, 25.2]
+  },
+  "inputs": {
+    "firms_globs": [
+      "data/raw/firms/**/*.csv"
+    ],
+    "expected_years": [2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    "accepted_sensors": ["VIIRS_SNPP", "VIIRS_NOAA20"]
+  },
+  "paths": {
+    "cache": "data/cache",
+    "output": "outputs"
+  },
+  "models": {
+    "event_spatial_km": 2.0,
+    "event_temporal_hours": 24,
+    "event_min_samples": 2,
+    "site_min_events": 3,
+    "site_max_diameter_km": 1.5,
+    "min_history_events": 6,
+    "isolation_min_training_events": 32,
+    "isolation_trees": 100,
+    "isolation_refit_days": 30,
+    "isolation_max_training_events": 20000,
+    "min_calibration_events": 32,
+    "history_window_days": 2557,
+    "seasonal_window_days": 45,
+    "seasonal_min_events": 12,
+    "tuning_repeats": 3,
+    "anomaly_percentile": 0.95,
+    "random_state": 26162
+  },
+  "vegetation_peers": {
+    "enabled": true,
+    "min_events": 32,
+    "min_days": 8,
+    "min_cells": 3,
+    "radius_km": 100,
+    "exclude_radius_km": 2,
+    "season_window_days": 45,
+    "history_window_days": 2557,
+    "gap_days": 7,
+    "cell_km": 5,
+    "max_events": 2000
+  },
+  "context": {
+    "worldcover_radius_m": 500,
+    "industrial_near_km": 2.0,
+    "industrial_context_km": 5.0,
+    "vegetation_fraction": 0.6
+  },
+  "sentinel": {
+    "enabled": true,
+    "max_events": 180,
+    "candidate_policy": "all_priority_groups",
+    "days_before": 45,
+    "days_after": 30,
+    "max_scene_cloud": 70,
+    "crop_radius_m": 750,
+    "workers": 3,
+    "max_pair_attempts": 4,
+    "max_catalog_pages": 6,
+    "collections": ["sentinel-2-c1-l2a", "sentinel-2-l2a", "sentinel-2-pre-c1-l2a"]
+  },
+  "acquisition": {
+    "archive_products": ["viirs-snpp", "viirs-jpss1"],
+    "live_window_days": 7,
+    "workers": 2
+  }
+}

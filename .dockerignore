@@ -1,0 +1,7 @@
+**
+!Dockerfile
+!.dockerignore
+!app.py
+!release.py
+!viewer.py
+!config.json

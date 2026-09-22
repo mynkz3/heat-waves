@@ -1,0 +1,17 @@
+services:
+  viewer:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - type: bind
+        source: ./outputs/site
+        target: /app/outputs/site
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
