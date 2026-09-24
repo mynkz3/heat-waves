@@ -15,8 +15,9 @@ warning service. An anomaly score is not a fire probability.**
 Requirements: **Python 3.12** and a modern desktop browser. No Python packages,
 database, Node.js, API key or GPU are required to view the packaged results.
 
-1. Obtain both `heat-waves-source.zip` and `heat-waves-data.zip` from the project
-   distributor. Extract **both into the same folder**. `app.py`, `config.json`,
+1. Download both `heat-waves-source.zip` and `heat-waves-data.zip` from the
+   [pilot release](https://github.com/mynkz3/heat-waves/releases/tag/pilot-2026-09).
+   Extract **both into the same folder**. `app.py`, `config.json`,
    `data/` and `outputs/` must be siblings, not nested inside separate folders.
    A source-only checkout does not contain the datasets.
 2. Open a terminal in that folder and run:
@@ -122,7 +123,9 @@ Windows PowerShell:
 
 ```powershell
 python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe app.py check --mode rebuild --deep
 .\.venv\Scripts\python.exe app.py rebuild
 ```
@@ -131,7 +134,9 @@ macOS/Linux:
 
 ```sh
 python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip check
 .venv/bin/python app.py check --mode rebuild --deep
 .venv/bin/python app.py rebuild
 ```

@@ -23,6 +23,16 @@ It should report `Python 3.12.x`. If Windows cannot find `python`, try
 try `python3 --version` and use `python3` if it reports 3.12.x. Install Python
 3.12 first if none is available; reopen your terminal after installation.
 
+On Windows with WinGet, install Python 3.12 with:
+
+```powershell
+winget install --exact --id Python.Python.3.12 --source winget
+```
+
+Skip that command if Python 3.12 is already installed. If WinGet is unavailable,
+or you use macOS/Linux, follow the [Python installation guide](https://docs.python.org/3.12/using/index.html)
+for your operating system. Confirm the version before continuing.
+
 ### 1. Get the project
 
 Choose **one** method. With Git installed:
@@ -32,8 +42,8 @@ git clone --branch main https://github.com/mynkz3/heat-waves.git
 cd heat-waves
 ```
 
-Or, without Git, put the supplied `heat-waves-source.zip` in a new working
-folder, open a terminal there, and run:
+Or, without Git, download [heat-waves-source.zip](https://github.com/mynkz3/heat-waves/releases/download/pilot-2026-09/heat-waves-source.zip)
+into a new working folder, open a terminal there, and run:
 
 ```console
 python -m zipfile -e heat-waves-source.zip heat-waves
@@ -45,11 +55,20 @@ lives. If you already have the project, skip cloning/extracting it again.
 
 ### 2. Add the data package
 
-Get **`heat-waves-data.zip` from the project maintainer**. It is supplied
-separately and is **not included in the Git repository**.
+Download [heat-waves-data.zip](https://github.com/mynkz3/heat-waves/releases/download/pilot-2026-09/heat-waves-data.zip)
+from the [pilot release](https://github.com/mynkz3/heat-waves/releases/tag/pilot-2026-09).
+It is approximately **568 MB** and is **not included in a Git clone**.
 
-Place the data ZIP **one folder above** the project folder. From inside
-`heat-waves`, extract it with:
+Place it **one folder above** the project folder. Alternatively, this command
+downloads it to that location using Python alone. Run it from inside
+`heat-waves`; skip it if you already downloaded the ZIP:
+
+```console
+python -c "from urllib.request import urlretrieve; urlretrieve('https://github.com/mynkz3/heat-waves/releases/download/pilot-2026-09/heat-waves-data.zip', '../heat-waves-data.zip')"
+```
+
+The download needs internet and may take several minutes. Wait for it to finish,
+then extract the ZIP:
 
 ```console
 python -m zipfile -e ../heat-waves-data.zip .
@@ -88,6 +107,40 @@ Next time, open a terminal in this folder and run only
 
 **Do not double-click `index.html`.** Always use the localhost address.
 Starting the dashboard does not train models or download new datasets.
+
+## Install analysis dependencies (optional)
+
+**Skip this section to view the supplied prototype.** Install these packages
+only to rebuild the analysis, run Python tests, or generate presentation figures.
+Run the commands from the project folder containing `requirements.txt`.
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip check
+```
+
+macOS/Linux (use Python 3.12):
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip check
+```
+
+The requirements file installs pinned versions of **NumPy, pandas, Requests,
+scikit-learn, Rasterio, and Matplotlib**, plus their dependencies. No environment
+activation is needed: use the virtual environment's Python as shown above.
+Installation needs internet unless you have a compatible local wheel cache.
+On Linux, if creating the environment reports that `venv` or `ensurepip` is
+missing, install your distribution's venv package for Python 3.12 first.
+
+Once installation succeeds, use the rebuild/test commands below. **Installing
+packages alone does not download new satellite data or retrain the models.**
 
 ## Do I need internet?
 
@@ -151,14 +204,13 @@ to other computers.
 <details>
 <summary>Rebuild the analysis from local datasets</summary>
 
-Requires the complete data package and scientific dependencies. Choose your
-operating system; virtual-environment activation is not needed.
+Requires the complete data package. First finish
+[Install analysis dependencies](#install-analysis-dependencies-optional), then
+choose your operating system:
 
 Windows PowerShell:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe app.py check --mode rebuild --deep
 .\.venv\Scripts\python.exe app.py rebuild
 ```
@@ -166,8 +218,6 @@ python -m venv .venv
 macOS/Linux:
 
 ```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python app.py check --mode rebuild --deep
 .venv/bin/python app.py rebuild
 ```
@@ -250,8 +300,8 @@ packages instead of ignoring integrity errors.
 <details>
 <summary>Developer tests and presentation figures</summary>
 
-Install the virtual environment and dependencies shown in the rebuild
-section first. Run Python tests:
+Finish [Install analysis dependencies](#install-analysis-dependencies-optional)
+first. Run Python tests:
 
 ```powershell
 # Windows PowerShell
@@ -294,5 +344,7 @@ and reload the dashboard.
   detailed operational notes.
 - [Data sources and limitations](docs/DATA_SOURCES.md): provenance, coverage,
   score interpretation, and attribution requirements.
+- [pip installation guide](https://pip.pypa.io/en/stable/getting-started/):
+  installing packages from a requirements file.
 
 This server is intended for localhost use, not unprotected public hosting.
