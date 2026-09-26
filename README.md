@@ -7,6 +7,17 @@ vegetation context, anomaly rankings, and available Sentinel-2 evidence in
 > Research screening only. An anomaly score is not a fire probability or a
 > confirmed accident.
 
+## Contents
+
+- [Dashboard guide](#dashboard-guide)
+- [Run locally in 3 steps](#run-locally-in-3-steps)
+- [Internet and offline use](#do-i-need-internet)
+- [Data coverage and dates](#which-dates-can-i-view)
+- [Quick fixes](#quick-fixes)
+- [Everyday commands](#everyday-commands)
+- [Optional rebuild, packaging, and tests](#optional-commands)
+- [More information](#more-information)
+
 ## Dashboard guide
 
 Thermal Sentinel is organized around a map, a filterable observation list, and
