@@ -7,6 +7,96 @@ vegetation context, anomaly rankings, and available Sentinel-2 evidence in
 > Research screening only. An anomaly score is not a fire probability or a
 > confirmed accident.
 
+## Dashboard guide
+
+Thermal Sentinel is organized around a map, a filterable observation list, and
+an evidence panel. The screenshots below use the supplied saved snapshot, so
+the values and dates shown are examples from the demo archive rather than live
+measurements.
+
+### Regional overview
+
+The main map shows the full Singrauli-Sonebhadra study region. The summary
+cards report how many observations are loaded and how they are categorized.
+Use the map controls to change the viewport, fit the results, or open the
+available map layers.
+
+<img src="docs/screenshots/01-overview.png" alt="Thermal Sentinel regional observation map" width="100%">
+
+### Map exploration
+
+Zooming into the map changes the spatial grouping and reveals the distribution
+of observations around facilities, vegetation, and other mapped context. This
+view is useful for moving from regional screening to a local area of interest.
+
+<img src="docs/screenshots/02-zoomed-map.png" alt="Thermal Sentinel map zoomed into local observations" width="100%">
+
+### Matching events
+
+The matching-events list turns the map results into selectable review cards.
+Each card exposes the context label, priority, date, event identifier,
+detection count, and radiative-power summary. Select a card to inspect its
+evidence brief.
+
+<img src="docs/screenshots/09-matching-events.png" alt="Thermal Sentinel matching events list" width="100%">
+
+### Filtering observations
+
+The filter panel narrows the results by time window, event context, score
+availability, and minimum anomaly score. The score slider changes review
+priority; it does not represent the probability of a fire. Unscored events
+can remain visible when the other filters match.
+
+<img src="docs/screenshots/10-filtered-observations.png" alt="Thermal Sentinel observation filters and filtered map" width="100%">
+
+### Map layers
+
+The Layers menu controls contextual overlays independently from the event
+results. Facilities and cached roads remain available offline; the online
+OpenStreetMap layer needs an internet connection.
+
+<img src="docs/screenshots/08-map-layers.png" alt="Thermal Sentinel map layers menu" width="100%">
+
+### Context legend
+
+The legend explains the colors used for industrial review, recurring heat,
+mining review, vegetation, unresolved observations, and insufficient data.
+These labels describe screening context and data availability, not confirmed
+incidents.
+
+<img src="docs/screenshots/07-context-legend.png" alt="Thermal Sentinel context legend" width="100%">
+
+### Evidence brief
+
+Selecting an event opens the evidence brief beside the map. It summarizes the
+event location, grouped satellite detections, peak radiative power, acquisition
+times, observed sensors, data quality, and spatial or temporal spread.
+
+<img src="docs/screenshots/03-evidence-brief.png" alt="Thermal Sentinel event evidence brief" width="100%">
+
+### Independent context
+
+The context section shows supporting information such as the nearest mapped
+facility, facility type, land-cover composition, persistent-site identifier,
+and the decision basis. Context helps prioritize review but does not prove that
+a facility caused an anomaly or that vegetation indicates a fire.
+
+<img src="docs/screenshots/04-context-and-source-fields.png" alt="Thermal Sentinel context and source fields" width="100%">
+
+### Anomaly score and corroboration
+
+The evidence panel separates anomaly ranking from satellite corroboration. The
+anomaly score ranks unusual behavior against the available comparison history.
+Sentinel-2 imagery can show whether a dated surface change was observed, but
+clouds, revisit timing, and valid-pixel coverage limit interpretation.
+
+<img src="docs/screenshots/05-sentinel-2-corroboration.png" alt="Thermal Sentinel anomaly evidence and Sentinel-2 corroboration" width="100%">
+
+The complete event view brings the map, event list, independent context, and
+anomaly evidence together for a single review workflow.
+
+<img src="docs/screenshots/06-event-context-and-score.png" alt="Thermal Sentinel complete event review view" width="100%">
+
 ## Run locally in 3 steps
 
 You need **Python 3.12** and a modern browser. Viewing the supplied results
@@ -23,16 +113,6 @@ It should report `Python 3.12.x`. If Windows cannot find `python`, try
 try `python3 --version` and use `python3` if it reports 3.12.x. Install Python
 3.12 first if none is available; reopen your terminal after installation.
 
-On Windows with WinGet, install Python 3.12 with:
-
-```powershell
-winget install --exact --id Python.Python.3.12 --source winget
-```
-
-Skip that command if Python 3.12 is already installed. If WinGet is unavailable,
-or you use macOS/Linux, follow the [Python installation guide](https://docs.python.org/3.12/using/index.html)
-for your operating system. Confirm the version before continuing.
-
 ### 1. Get the project
 
 Choose **one** method. With Git installed:
@@ -42,8 +122,8 @@ git clone --branch main https://github.com/mynkz3/heat-waves.git
 cd heat-waves
 ```
 
-Or, without Git, download [heat-waves-source.zip](https://github.com/mynkz3/heat-waves/releases/download/pilot-2026-09/heat-waves-source.zip)
-into a new working folder, open a terminal there, and run:
+Or, without Git, put the supplied `heat-waves-source.zip` in a new working
+folder, open a terminal there, and run:
 
 ```console
 python -m zipfile -e heat-waves-source.zip heat-waves
@@ -55,20 +135,11 @@ lives. If you already have the project, skip cloning/extracting it again.
 
 ### 2. Add the data package
 
-Download [heat-waves-data.zip](https://github.com/mynkz3/heat-waves/releases/download/pilot-2026-09/heat-waves-data.zip)
-from the [pilot release](https://github.com/mynkz3/heat-waves/releases/tag/pilot-2026-09).
-It is approximately **568 MB** and is **not included in a Git clone**.
+Get **`heat-waves-data.zip` from the project maintainer**. It is supplied
+separately and is **not included in the Git repository**.
 
-Place it **one folder above** the project folder. Alternatively, this command
-downloads it to that location using Python alone. Run it from inside
-`heat-waves`; skip it if you already downloaded the ZIP:
-
-```console
-python -c "from urllib.request import urlretrieve; urlretrieve('https://github.com/mynkz3/heat-waves/releases/download/pilot-2026-09/heat-waves-data.zip', '../heat-waves-data.zip')"
-```
-
-The download needs internet and may take several minutes. Wait for it to finish,
-then extract the ZIP:
+Place the data ZIP **one folder above** the project folder. From inside
+`heat-waves`, extract it with:
 
 ```console
 python -m zipfile -e ../heat-waves-data.zip .
@@ -107,40 +178,6 @@ Next time, open a terminal in this folder and run only
 
 **Do not double-click `index.html`.** Always use the localhost address.
 Starting the dashboard does not train models or download new datasets.
-
-## Install analysis dependencies (optional)
-
-**Skip this section to view the supplied prototype.** Install these packages
-only to rebuild the analysis, run Python tests, or generate presentation figures.
-Run the commands from the project folder containing `requirements.txt`.
-
-Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m pip check
-```
-
-macOS/Linux (use Python 3.12):
-
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install --upgrade pip
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python -m pip check
-```
-
-The requirements file installs pinned versions of **NumPy, pandas, Requests,
-scikit-learn, Rasterio, and Matplotlib**, plus their dependencies. No environment
-activation is needed: use the virtual environment's Python as shown above.
-Installation needs internet unless you have a compatible local wheel cache.
-On Linux, if creating the environment reports that `venv` or `ensurepip` is
-missing, install your distribution's venv package for Python 3.12 first.
-
-Once installation succeeds, use the rebuild/test commands below. **Installing
-packages alone does not download new satellite data or retrain the models.**
 
 ## Do I need internet?
 
@@ -204,13 +241,14 @@ to other computers.
 <details>
 <summary>Rebuild the analysis from local datasets</summary>
 
-Requires the complete data package. First finish
-[Install analysis dependencies](#install-analysis-dependencies-optional), then
-choose your operating system:
+Requires the complete data package and scientific dependencies. Choose your
+operating system; virtual-environment activation is not needed.
 
 Windows PowerShell:
 
 ```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe app.py check --mode rebuild --deep
 .\.venv\Scripts\python.exe app.py rebuild
 ```
@@ -218,6 +256,8 @@ Windows PowerShell:
 macOS/Linux:
 
 ```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python app.py check --mode rebuild --deep
 .venv/bin/python app.py rebuild
 ```
@@ -300,8 +340,8 @@ packages instead of ignoring integrity errors.
 <details>
 <summary>Developer tests and presentation figures</summary>
 
-Finish [Install analysis dependencies](#install-analysis-dependencies-optional)
-first. Run Python tests:
+Install the virtual environment and dependencies shown in the rebuild
+section first. Run Python tests:
 
 ```powershell
 # Windows PowerShell
@@ -344,7 +384,5 @@ and reload the dashboard.
   detailed operational notes.
 - [Data sources and limitations](docs/DATA_SOURCES.md): provenance, coverage,
   score interpretation, and attribution requirements.
-- [pip installation guide](https://pip.pypa.io/en/stable/getting-started/):
-  installing packages from a requirements file.
 
 This server is intended for localhost use, not unprotected public hosting.
